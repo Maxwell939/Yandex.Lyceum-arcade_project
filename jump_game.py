@@ -2,6 +2,7 @@ import arcade
 from pyglet.graphics import Batch
 
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY
+from player import Player
 
 
 class JumpGame(arcade.View):
@@ -12,6 +13,7 @@ class JumpGame(arcade.View):
         self.player_list = arcade.SpriteList()
 
         self.player = None
+        self.spawn_point = (SCREEN_WIDTH / 2, SCREEN_HEIGHT)
 
         self.engine = None
 
@@ -23,6 +25,8 @@ class JumpGame(arcade.View):
 
     def setup(self):
         self.player_list = arcade.SpriteList()
+        self.player = Player(*self.spawn_point)
+        self.player_list.append(self.player)
 
         self.engine = arcade.PhysicsEnginePlatformer(
             player_sprite=self.player,
@@ -36,6 +40,11 @@ class JumpGame(arcade.View):
         self.player_list.draw()
 
         self.batch.draw()
+
+    def on_update(self, delta_time):
+        self.player_list.update()
+
+        self.engine.update()
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT, arcade.key.A):
