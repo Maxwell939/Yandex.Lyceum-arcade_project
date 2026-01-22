@@ -1,14 +1,14 @@
 import arcade
 
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
-from jump_game import JumpGame
+from game_view import GameView
+from start_view import StartView
 
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    jump_game = JumpGame()
-    jump_game.setup()
-    window.show_view(jump_game)
+    setup_view = StartView(game_view=GameView())
+    window.show_view(setup_view)
     arcade.run()
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED
 from player import Player
 
 
-class JumpGame(arcade.View):
+class GameView(arcade.View):
     def __init__(self):
         super().__init__()
         self.background = arcade.load_texture("textures/background.png")
