@@ -1,7 +1,10 @@
+import random
+
 import arcade
 from pyglet.graphics import Batch
 
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED
+from platform_ import Platform
 from player import Player
 
 
@@ -11,9 +14,11 @@ class GameView(arcade.View):
         self.background = arcade.load_texture("textures/background.png")
 
         self.player_list = arcade.SpriteList()
+        self.platforms = arcade.SpriteList()
+        self.platform = None
 
         self.player = None
-        self.spawn_point = (SCREEN_WIDTH / 2, SCREEN_HEIGHT)
+        self.spawn_point = (SCREEN_WIDTH // 2, 60)
 
         self.engine = None
 
@@ -28,16 +33,23 @@ class GameView(arcade.View):
         self.player = Player(*self.spawn_point)
         self.player_list.append(self.player)
 
+        self.platform = Platform()
+        self.platform.position = [SCREEN_WIDTH // 2, 50]
+        self.platforms.append(self.platform)
+
         self.engine = arcade.PhysicsEnginePlatformer(
             player_sprite=self.player,
             gravity_constant=GRAVITY,
+            platforms=self.platforms
         )
+        self.engine.disable_multi_jump()
 
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.player_list.draw()
+        self.platforms.draw()
 
         self.batch.draw()
 
@@ -50,6 +62,16 @@ class GameView(arcade.View):
         self.player.change_x = move
 
         self.player_list.update()
+
+        if len(self.platforms) < MAX_PLATFORMS:
+            platform_x = random.randint(0, int(SCREEN_WIDTH - self.platform.width))
+            platform_y = self.platforms[-1].top + self.platform.height + random.randint(80, 120)
+            platform = Platform()
+            platform.left, platform.bottom = platform_x, platform_y
+            self.platforms.append(platform)
+
+        if self.engine.can_jump(y_distance=6):
+            self.engine.jump(JUMP_SPEED)
 
         self.engine.update()
 
