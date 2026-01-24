@@ -1,6 +1,6 @@
 import arcade
 
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCROLL_THRESHOLD
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCROLL_THRESHOLD, GRAVITY
 
 
 class Player(arcade.Sprite):
@@ -33,3 +33,5 @@ class Player(arcade.Sprite):
         if self.top >= SCROLL_THRESHOLD:
             if self.change_y > 0:
                 self.scroll = -self.change_y
+
+        self.center_y += self.scroll

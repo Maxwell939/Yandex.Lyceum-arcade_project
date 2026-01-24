@@ -79,6 +79,8 @@ class GameView(arcade.View):
             platform.left, platform.bottom = platform_x, platform_y
             self.platforms.append(platform)
 
+        self.platforms.update(scroll=self.player.scroll)
+
         if self.engine.can_jump(y_distance=6):
             self.engine.jump(JUMP_SPEED)
 
