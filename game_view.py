@@ -23,6 +23,7 @@ class GameView(arcade.View):
         self.engine = None
 
         self.left, self.right, self.up, self.down = False, False, False, False
+        self.background_scroll = 0
 
         self.score = 0
         self.batch = Batch()
@@ -47,7 +48,11 @@ class GameView(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background,
-                                 arcade.rect.LBWH(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+                                 arcade.rect.LBWH(0, self.background_scroll, SCREEN_WIDTH, SCREEN_HEIGHT))
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(0, SCREEN_HEIGHT + self.background_scroll,
+                                                  SCREEN_WIDTH, SCREEN_HEIGHT))
+
         self.player_list.draw()
         self.platforms.draw()
 
@@ -63,12 +68,18 @@ class GameView(arcade.View):
 
         self.player_list.update()
 
+        self.background_scroll += self.player.scroll // 2
+        if self.background_scroll <= -SCREEN_HEIGHT:
+            self.background_scroll = 0
+
         if len(self.platforms) < MAX_PLATFORMS:
             platform_x = random.randint(0, int(SCREEN_WIDTH - self.platform.width))
             platform_y = self.platforms[-1].top + self.platform.height + random.randint(80, 120)
             platform = Platform()
             platform.left, platform.bottom = platform_x, platform_y
             self.platforms.append(platform)
+
+        self.platforms.update(scroll=self.player.scroll)
 
         if self.engine.can_jump(y_distance=6):
             self.engine.jump(JUMP_SPEED)
