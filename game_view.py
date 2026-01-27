@@ -98,6 +98,8 @@ class GameView(arcade.View):
 
         self.enemies.update(player=self.player)
 
+        self.enemies.update_animation()
+
         if self.engine.can_jump(y_distance=6):
             self.engine.jump(JUMP_SPEED)
 

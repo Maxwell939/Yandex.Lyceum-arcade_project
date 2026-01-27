@@ -45,9 +45,6 @@ class EnemyBird(Enemy):
     def update_animation(self, delta_time: float = 1 / 60):
         self.texture_change_time += delta_time
         if self.texture_change_time >= self.texture_change_delay:
-            self.texture_change_time = 0
-            if self.cur_texture_index >= len(self.textures) - 1:
-                self.cur_texture_index = 0
-            else:
-                self.cur_texture_index += 1
+            self.texture_change_time -= self.texture_change_delay
+            self.cur_texture_index = (self.cur_texture_index + 1) % len(self.textures)
             self.texture = self.textures[self.cur_texture_index]
