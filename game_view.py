@@ -56,9 +56,9 @@ class GameView(arcade.View):
                                  arcade.rect.LBWH(0, SCREEN_HEIGHT + self.background_scroll,
                                                   SCREEN_WIDTH, SCREEN_HEIGHT))
 
-        self.platforms.draw()
-        self.enemies.draw()
-        self.player_list.draw()
+        self.platforms.draw(pixelated=True)
+        self.enemies.draw(pixelated=True)
+        self.player_list.draw(pixelated=True)
 
         self.batch.draw()
 
