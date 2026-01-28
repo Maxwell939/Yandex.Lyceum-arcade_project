@@ -1,4 +1,8 @@
+import random
+
 import arcade
+
+from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH
 
 
 class Platform(arcade.Sprite):
@@ -16,6 +20,16 @@ class Platform(arcade.Sprite):
 
 
 class MovingPlatform(Platform):
-    def __init__(self):
+    def __init__(self, y: int):
         super().__init__()
+        self.center_y = y
         self.texture = arcade.load_texture("textures/platforms/moving_platform.png")
+
+        self.direction = random.choice((LEFT_FACING, RIGHT_FACING))
+        if self.direction == RIGHT_FACING:
+            self.left = 0
+        elif self.direction == LEFT_FACING:
+            self.right = SCREEN_WIDTH
+
+        self.boundary_left = 0
+        self.boundary_right = SCREEN_WIDTH
