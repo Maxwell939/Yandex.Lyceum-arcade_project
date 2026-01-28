@@ -7,6 +7,7 @@ class SoundManager:
         self.jump_sound = None
         self.death_sound = None
         self.death_from_monster_sound = None
+        self.monster_death_sound = None
         self.sounds_loaded = False
         self.load_sounds()
     
@@ -21,6 +22,7 @@ class SoundManager:
             jump_path = os.path.join(sounds_dir, "jump.mp3")
             death_path = os.path.join(sounds_dir, "death.mp3")
             death_from_monster_path = os.path.join(sounds_dir, "jumponmonster.mp3")
+            monster_death_path = os.path.join(sounds_dir, "monster_explosion.mp3")
             if os.path.exists(jump_path):
                 self.jump_sound = arcade.load_sound(jump_path)
             else:
@@ -33,10 +35,15 @@ class SoundManager:
                 self.death_from_monster_sound = arcade.load_sound(death_from_monster_path)
             else:
                 print(f"Файл {death_path} не найден")
+            if os.path.exists(monster_death_path):
+                self.monster_death_sound = arcade.load_sound(monster_death_path)
+            else:
+                print(f"Файл {death_path} не найден")
             
             self.sounds_loaded = (self.jump_sound is not None
                                   and self.death_sound is not None
-                                  and self.death_sound is not None)
+                                  and self.death_from_monster_sound is not None
+                                  and self.monster_death_sound is not None)
                 
         except Exception as e:
             print(f"Ошибка загрузки звуков: {e}")
@@ -53,6 +60,10 @@ class SoundManager:
     def play_death_from_monster(self):
         if self.death_from_monster_sound and self.sounds_loaded:
             arcade.play_sound(self.death_from_monster_sound, volume=0.2)
+
+    def play_monster_death(self):
+        if self.monster_death_sound and self.sounds_loaded:
+            arcade.play_sound(self.monster_death_sound, volume=0.3)
     
     def is_loaded(self):
         return self.sounds_loaded
