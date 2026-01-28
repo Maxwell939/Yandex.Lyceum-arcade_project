@@ -19,8 +19,8 @@ class OneWayPlatformPhysicsEngine(arcade.PhysicsEnginePlatformer):
                         player.change_y = 0
                         self.jump(JUMP_SPEED)
 
+            # this part is straight from the lib source code
             if platform.change_x != 0 or platform.change_y != 0:
-                # Check x boundaries and move the platform in x direction
                 if (
                         platform.boundary_left is not None
                         and platform.left <= platform.boundary_left

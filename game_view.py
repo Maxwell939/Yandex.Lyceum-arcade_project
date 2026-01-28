@@ -112,7 +112,7 @@ class GameView(arcade.View):
             for platform_type in platform_types:
                 platform_y = (self.platforms[-1].top + self.platform.height +
                               random.randint(10 + self.delta_platforms_distance, 50 + self.delta_platforms_distance))
-                if platform_type == 'moving':
+                if platform_type == "moving":
                     platform = MovingPlatform(platform_y)
                 else:
                     platform = Platform()
@@ -128,8 +128,8 @@ class GameView(arcade.View):
         self.platforms.update()
 
         if len(self.enemies) == 0 and self.score > ENEMIES_SPAWN_SCORE_THRESHOLD:
-            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 3 + random.choice((-1, 1)) * random.randint(100, 500)))
-            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 500)))
+            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 3 + random.choice((-1, 1)) * random.randint(100, 800)))
+            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 800)))
 
         for enemy in self.enemies:
             enemy.change_y = self.player.scroll
