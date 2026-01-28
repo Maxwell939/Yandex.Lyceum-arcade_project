@@ -16,7 +16,7 @@ class Player(arcade.Sprite):
 
         self.scroll = 0
 
-    def update(self, delta_time):
+    def update(self, delta_time: float = 1 / 60) -> None:
         super().update(delta_time)
         if self.right <= 0:
             self.left = SCREEN_WIDTH

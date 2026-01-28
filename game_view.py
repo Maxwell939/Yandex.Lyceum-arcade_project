@@ -3,14 +3,17 @@ import random
 import arcade
 from pyglet.graphics import Batch
 
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
+    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD
+
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
-from platform_ import Platform
+from platforms import Platform, MovingPlatform
 from player import Player
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
+
 
 class GameView(arcade.View):
     def __init__(self):
@@ -20,6 +23,9 @@ class GameView(arcade.View):
         self.player_list = arcade.SpriteList()
         self.platforms = arcade.SpriteList()
         self.platform = None
+        self.delta_platforms_distance = 0
+        self.moving_platforms_amount = 0
+
         self.enemies = arcade.SpriteList()
 
         self.player = None
@@ -36,11 +42,9 @@ class GameView(arcade.View):
         self.batch = Batch()
         self.score_text = None
         self.high_score_text = None
-        self.total_scroll = 0
-        ... #text
+        self.score = 0
 
     def setup(self):
-        self.player_list = arcade.SpriteList()
         self.player = Player(*self.spawn_point)
         self.player_list.append(self.player)
 
@@ -55,7 +59,7 @@ class GameView(arcade.View):
         )
         self.engine.disable_multi_jump()
         self.score_manager.reset()
-        self.total_scroll = 0
+        self.score = 0
         self.was_jumping = False
         self.create_score_display()
 
@@ -90,24 +94,40 @@ class GameView(arcade.View):
         for platform in self.platforms:
             platform.change_y = self.player.scroll
 
-        self.total_scroll -= self.player.scroll
+        self.score -= self.player.scroll
 
-        new_score = int(self.total_scroll // 10)
+        new_score = int(self.score)
         self.score_manager.update_score(new_score)
         self.update_score_display()
 
-        if len(self.platforms) < MAX_PLATFORMS:
-            platform_x = random.randint(0, int(SCREEN_WIDTH - self.platform.width))
-            platform_y = self.platforms[-1].top + self.platform.height + random.randint(80, 120)
-            platform = Platform()
-            platform.left, platform.bottom = platform_x, platform_y
-            self.platforms.append(platform)
+        if self.delta_platforms_distance <= MAX_DELTA_PLATFORMS_DISTANCE:
+            self.delta_platforms_distance = int(self.score // 200)
+
+        if len(self.platforms) <= MAX_PLATFORMS:
+            platform_types = (["moving"] * self.moving_platforms_amount +
+                              ["idle"] * (MAX_PLATFORMS - self.moving_platforms_amount))
+
+            random.shuffle(platform_types)
+
+            for platform_type in platform_types:
+                platform_y = (self.platforms[-1].top + self.platform.height +
+                              random.randint(10 + self.delta_platforms_distance, 50 + self.delta_platforms_distance))
+                if platform_type == "moving":
+                    platform = MovingPlatform(platform_y)
+                else:
+                    platform = Platform(platform_y)
+
+                self.platforms.append(platform)
+
+            if self.score > MOVING_PLATFORMS_SCORE_THRESHOLD:
+                self.moving_platforms_amount = int(self.score) // (SCREEN_HEIGHT * 2)
+            print(self.moving_platforms_amount)
 
         self.platforms.update()
 
-        if len(self.enemies) == 0:
-            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(50, 200)))
-            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(50, 200)))
+        if len(self.enemies) == 0 and self.score > ENEMIES_SPAWN_SCORE_THRESHOLD:
+            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 3 + random.choice((-1, 1)) * random.randint(100, 800)))
+            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 800)))
 
         for enemy in self.enemies:
             enemy.change_y = self.player.scroll

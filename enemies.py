@@ -73,7 +73,6 @@ class EnemyBird(Enemy):
             self.cur_texture_index = (self.cur_texture_index + 1) % len(self.textures)
             self.texture = self.textures[self.cur_texture_index]
 
-            # Apply direction to texture
             if self.direction == RIGHT_FACING:
                 self.texture = self.textures[self.cur_texture_index].flip_horizontally()
             else:
