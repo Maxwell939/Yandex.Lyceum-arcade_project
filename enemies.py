@@ -3,18 +3,28 @@ import random
 import arcade
 
 from constants import RIGHT_FACING, LEFT_FACING, SCREEN_WIDTH, ENEMY_BIRD_SPEED, ENEMY_SCALE
+from sound_manager import SoundManager
 
 
 class Enemy(arcade.Sprite):
     def __init__(self, y: int):
         super().__init__()
         self.bottom = y
+        self.make_explosion = False
+        self.sound_manager = SoundManager()
 
     def update(self, player: arcade.Sprite, delta_time: float = 1 / 60) -> None:
         super().update(delta_time)
         if self.collides_with_sprite(player):
-            self.kill()
-            ... # another way for game_over
+            if (self.collides_with_sprite(player)
+                    and player.center_y > self.center_y
+                    and player.change_y < 0):
+                self.make_explosion = True
+                self.sound_manager.play_monster_death()
+            else:
+                player.is_dead = True
+                self.sound_manager.play_death_from_monster()
+
         if self.top < 0:
             self.kill()
 
