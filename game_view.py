@@ -37,10 +37,9 @@ class GameView(arcade.View):
         self.batch = Batch()
         self.score_text = None
         self.high_score_text = None
-        self.total_scroll = 0
+        self.score = 0
 
     def setup(self):
-        self.player_list = arcade.SpriteList()
         self.player = Player(*self.spawn_point)
         self.player_list.append(self.player)
 
@@ -55,7 +54,7 @@ class GameView(arcade.View):
         )
         self.engine.disable_multi_jump()
         self.score_manager.reset()
-        self.total_scroll = 0
+        self.score = 0
         self.was_jumping = False
         self.create_score_display()
 
@@ -90,9 +89,9 @@ class GameView(arcade.View):
         for platform in self.platforms:
             platform.change_y = self.player.scroll
 
-        self.total_scroll -= self.player.scroll
+        self.score -= self.player.scroll
 
-        new_score = int(self.total_scroll // 10)
+        new_score = int(self.score)
         self.score_manager.update_score(new_score)
         self.update_score_display()
 
@@ -105,9 +104,9 @@ class GameView(arcade.View):
 
         self.platforms.update()
 
-        if len(self.enemies) == 0:
-            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 3 + random.choice((-1, 1)) * random.randint(50, 200)))
-            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(50, 200)))
+        if len(self.enemies) == 0 and self.score > 2500:
+            self.enemies.append(EnemyBird(SCREEN_HEIGHT * 3 + random.choice((-1, 1)) * random.randint(100, 500)))
+            self.enemies.append(EnemyBat(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 500)))
 
         for enemy in self.enemies:
             enemy.change_y = self.player.scroll
