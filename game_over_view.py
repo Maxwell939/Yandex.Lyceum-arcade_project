@@ -1,7 +1,15 @@
+import os
+import sys
 import arcade
 from pyglet.graphics import Batch
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+BASE_PATH = get_base_path()
 
 class GameOverView(arcade.View):
     def __init__(self, score_manager, sound_manager):
@@ -13,7 +21,8 @@ class GameOverView(arcade.View):
         self.score_text = None
         self.high_score_text = None
         self.instruction_text = None
-        arcade.load_font("fonts/PressStart2P-Regular.ttf")
+        font_path = os.path.join(BASE_PATH, "fonts", "PressStart2P-Regular.ttf")
+        arcade.load_font(font_path)
         self.create_text_elements()
     
     def create_text_elements(self):
