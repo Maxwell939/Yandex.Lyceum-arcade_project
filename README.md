@@ -1,1 +1,2 @@
-# Yandex.Lyceum_arcade-project
+# Игра "JumpStep"
+JumpStep - это бесконечный вертикальный платформер с целью забраться как можно выше
