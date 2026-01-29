@@ -1,6 +1,6 @@
 import arcade
 import os
-
+import sys
 
 class SoundManager:
     def __init__(self):
@@ -12,33 +12,34 @@ class SoundManager:
         self.load_sounds()
     
     def load_sounds(self):
-        """Загружает звуковые файлы"""
         try:
-            sounds_dir = "sounds"
+            if getattr(sys, 'frozen', False):
+                base_path = sys._MEIPASS
+            else:
+                base_path = os.path.dirname(os.path.abspath(__file__))
+            
+            sounds_dir = os.path.join(base_path, "sounds")
+            
             if not os.path.exists(sounds_dir):
-                os.makedirs(sounds_dir, exist_ok=True)
                 self.sounds_loaded = False
                 return
+            
             jump_path = os.path.join(sounds_dir, "jump.mp3")
             death_path = os.path.join(sounds_dir, "death.mp3")
             death_from_monster_path = os.path.join(sounds_dir, "jumponmonster.mp3")
             monster_death_path = os.path.join(sounds_dir, "monster_explosion.mp3")
+            
             if os.path.exists(jump_path):
                 self.jump_sound = arcade.load_sound(jump_path)
-            else:
-                print(f"Файл {jump_path} не найден")
+            
             if os.path.exists(death_path):
                 self.death_sound = arcade.load_sound(death_path)
-            else:
-                print(f"Файл {death_path} не найден")
+            
             if os.path.exists(death_from_monster_path):
                 self.death_from_monster_sound = arcade.load_sound(death_from_monster_path)
-            else:
-                print(f"Файл {death_path} не найден")
+            
             if os.path.exists(monster_death_path):
                 self.monster_death_sound = arcade.load_sound(monster_death_path)
-            else:
-                print(f"Файл {death_path} не найден")
             
             self.sounds_loaded = (self.jump_sound is not None
                                   and self.death_sound is not None
@@ -46,7 +47,6 @@ class SoundManager:
                                   and self.monster_death_sound is not None)
                 
         except Exception as e:
-            print(f"Ошибка загрузки звуков: {e}")
             self.sounds_loaded = False
     
     def play_jump(self):
