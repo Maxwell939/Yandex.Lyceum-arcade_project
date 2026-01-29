@@ -1,7 +1,7 @@
 import arcade
 from pyglet.graphics import Batch
 
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
 
 
 class StartView(arcade.View):
@@ -10,17 +10,22 @@ class StartView(arcade.View):
         arcade.set_background_color(arcade.color.BLACK)
         self.game_view = game_view
         self.start_text = None
-        self.any_key_text = None
+        self.any_key_text1 = None
+        self.any_key_text2 = None
         self.batch = None
+        arcade.load_font("fonts/PressStart2P-Regular.ttf")
 
     def on_draw(self) -> None:
         self.clear()
         self.batch = Batch()
-        self.start_text = arcade.Text("JumpStep", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
-        self.any_key_text = arcade.Text("Нажмите любую клавишу для запуска",
-                                   self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
+        self.start_text = arcade.Text(SCREEN_TITLE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE,
+                                      font_size=30, font_name="Press Start 2P", anchor_x="center", batch=self.batch)
+        self.any_key_text1 = arcade.Text("Нажмите любую", self.window.width / 2,
+                                         self.window.height / 2 - 75, arcade.color.GRAY, font_size=15,
+                                         font_name="Press Start 2P", anchor_x="center", batch=self.batch)
+        self.any_key_text2 = arcade.Text("клавишу для запуска", self.window.width / 2, self.window.height / 2 - 75 - 30,
+                                         arcade.color.GRAY, font_size=15, font_name="Press Start 2P",
+                                         anchor_x="center", batch=self.batch)
         self.batch.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:

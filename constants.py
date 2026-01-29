@@ -3,7 +3,7 @@ import arcade
 
 SCREEN_WIDTH: int = 400
 SCREEN_HEIGHT: int = 800
-SCREEN_TITLE: str = "JumpGame"
+SCREEN_TITLE: str = "JumpStep"
 GRAVITY: float = 0.25
 MOVE_SPEED: int = 3
 MAX_PLATFORMS: int = 20
