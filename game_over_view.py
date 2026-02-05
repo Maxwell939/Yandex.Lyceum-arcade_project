@@ -4,6 +4,7 @@ import arcade
 from pyglet.graphics import Batch
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
+
 def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
@@ -11,11 +12,12 @@ def get_base_path():
 
 BASE_PATH = get_base_path()
 
+
 class GameOverView(arcade.View):
     def __init__(self, score_manager, sound_manager):
         super().__init__()
         self.score_manager = score_manager
-        self.sound_manager = sound_manager
+
         self.batch = Batch()
         self.game_over_text = None
         self.score_text = None
@@ -76,11 +78,21 @@ class GameOverView(arcade.View):
             anchor_x="center",
             batch=self.batch
         )
-        self.instruction_text = arcade.Text(
-            "SPACE for restart",
+        self.instruction_text1 = arcade.Text(
+            "Нажмите ПРОБЕЛ",
             SCREEN_WIDTH / 2,
             SCREEN_HEIGHT * 0.2,
-            arcade.color.LIGHT_GRAY,
+            arcade.color.GRAY,
+            15,
+            anchor_x="center",
+            font_name="Press Start 2P",
+            batch=self.batch
+        )
+        self.instruction_text2 = arcade.Text(
+            "чтобы начать заново",
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT * 0.15,
+            arcade.color.GRAY,
             15,
             anchor_x="center",
             font_name="Press Start 2P",
