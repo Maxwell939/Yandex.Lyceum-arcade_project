@@ -2,7 +2,7 @@ import random
 import os
 import sys
 import arcade
-from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE
+from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY
 from boosts import Spring
 from score_manager import ScoreManager
 
@@ -25,8 +25,9 @@ class Platform(arcade.Sprite):
         self.left = random.randint(0, int(SCREEN_WIDTH - self.width))
         self.bottom = y
         self.boost = None
-        if random.randint(1, 20) == 1 :
-            self.boost = Spring()
+        if random.random() < BOOST_PROBABILITY:
+            if not hasattr(self, 'boost') or self.boost is None:
+                self.boost = Spring()
             self.boost.center_x = self.center_x
             self.boost.bottom = self.top
 

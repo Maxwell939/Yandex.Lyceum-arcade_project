@@ -33,7 +33,6 @@ class Player(arcade.Sprite):
 
         self.scroll = 0
         self.boost_active = False
-        self.boost_timer = 0
 
     def update(self, delta_time: float = 1 / 60) -> None:
         super().update(delta_time)
