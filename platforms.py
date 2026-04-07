@@ -25,6 +25,7 @@ class Platform(arcade.Sprite):
         self.left = random.randint(0, int(SCREEN_WIDTH - self.width))
         self.bottom = y
         self.boost = None
+        self.down_boost = False
         if random.random() < BOOST_PROBABILITY:
             if not hasattr(self, 'boost') or self.boost is None:
                 self.boost = Spring()
@@ -36,6 +37,8 @@ class Platform(arcade.Sprite):
         if self.boost:
             self.boost.center_x = self.center_x
             self.boost.bottom = self.top
+            if self.down_boost:
+                self.boost.center_y -= 4
         if self.top < 0:
             self.kill()
             if self.boost:
@@ -46,7 +49,7 @@ class MovingPlatform(Platform):
     def __init__(self, y: int):
         super().__init__()
         self.center_y = y
-
+        self.down_boost = True
         moving_platform_path = os.path.join(BASE_PATH, "textures", "platforms", "moving_platform.png")
         self.texture = arcade.load_texture(moving_platform_path)
 

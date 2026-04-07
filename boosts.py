@@ -23,7 +23,6 @@ class Spring(Boost):
     def __init__(self):
         super().__init__()
         string_path = os.path.join(BASE_PATH, "textures", "boosts", "spring", "spring1.png")
-        self.textures = []
-        self.textures.append(arcade.load_texture(string_path))
+        self.texture = arcade.load_texture(string_path)
         self.scale = 1.5
         self.boost_strength = 2
