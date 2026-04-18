@@ -63,3 +63,16 @@ class MovingPlatform(Platform):
         self.boundary_right = SCREEN_WIDTH
 
         self.change_x = random.uniform(*MOVING_PLATFORM_SPEED_RANGE)
+
+class PlatformHor(arcade.Sprite):
+    def __init__(self, x: int = 3, y: int = 0.4):
+        super().__init__()
+        platform_path = os.path.join(BASE_PATH, "textures", "platforms", "platform.png")
+        self.texture = arcade.load_texture(platform_path)
+        self.scale_y = 3 #размеры нужно подправить
+        self.scale_x = 8
+        self.center_x = x
+        self.bottom = y
+
+    def update(self, delta_time: float = 1 / 60):
+        super().update(delta_time)
