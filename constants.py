@@ -18,7 +18,7 @@ RIGHT_FACING: int = 1
 LEFT_FACING: int = -1
 ENEMY_SCALE: float = 1.5
 ENEMIES_SPAWN_SCORE_THRESHOLD: int = 2500
-BOOST_PROBABILITY = 0.05
+BOOST_PROBABILITY: float = 0.05
 SPARK_TEXTURES = [
     arcade.make_soft_circle_texture(8, arcade.color.ALIZARIN_CRIMSON),
     arcade.make_soft_circle_texture(8, arcade.color.COQUELICOT),

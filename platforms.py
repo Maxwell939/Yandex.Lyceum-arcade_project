@@ -2,15 +2,16 @@ import random
 import os
 import sys
 import arcade
+
 from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY
 from boosts import Spring
-from score_manager import ScoreManager
 
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
+
 
 BASE_PATH = get_base_path()
 
@@ -64,12 +65,13 @@ class MovingPlatform(Platform):
 
         self.change_x = random.uniform(*MOVING_PLATFORM_SPEED_RANGE)
 
+
 class PlatformHor(arcade.Sprite):
     def __init__(self, x: int = 3, y: int = 0.4):
         super().__init__()
         platform_path = os.path.join(BASE_PATH, "textures", "platforms", "platform.png")
         self.texture = arcade.load_texture(platform_path)
-        self.scale_y = 3 #размеры нужно подправить
+        self.scale_y = 3  # размеры нужно подправить
         self.scale_x = 8
         self.center_x = x
         self.bottom = y

@@ -2,15 +2,13 @@ import random
 import os
 import sys
 import arcade
+
 from arcade.particles import Emitter, EmitBurst, FadeParticle
 from pyglet.graphics import Batch
-
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
-    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, SCREEN_TITLE
-
+    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
-from boosts import Spring
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player
 from player_hor import PlayerHor
@@ -24,12 +22,15 @@ def get_base_path():
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
+
 BASE_PATH = get_base_path()
+
 
 def gravity_drag(p):
     p.change_y -= 0.03
     p.change_x *= 0.92
     p.change_y *= 0.92
+
 
 def make_explosion(x, y, count=80):
     return Emitter(
@@ -190,13 +191,12 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 100 and self.horizontal_world == False: #пока что оставьте 100 чтобы было проще тестить
+        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
             self.window.set_size(SCREEN_WIDTH + 1200, SCREEN_HEIGHT - 200)
             horizontal_view = GameViewHorizontal()
             horizontal_view.setup()
             self.window.show_view(horizontal_view)
-
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT, arcade.key.A):
@@ -209,7 +209,7 @@ class GameView(arcade.View):
             self.left = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right = False
-    
+
     def create_score_display(self):
         self.score_text = arcade.Text(
             f"{self.score_manager.current_score}",
@@ -219,10 +219,6 @@ class GameView(arcade.View):
 
     def update_score_display(self):
         self.score_text.text = f"{self.score_manager.current_score}"
-
-
-
-
 
 
 class GameViewHorizontal(arcade.View):
@@ -242,7 +238,6 @@ class GameViewHorizontal(arcade.View):
         self.last_platform_x = 300
 
     def setup(self):
-
 
         self.player = PlayerHor(*self.spawn_point)
         self.player_list.append(self.player)
@@ -286,7 +281,6 @@ class GameViewHorizontal(arcade.View):
 
             platform = PlatformHor(new_x, 0.4)
             self.platforms.append(platform)
-
 
         if self.player.is_dead:
             print("Game Over")
