@@ -3,6 +3,8 @@ import arcade
 
 SCREEN_WIDTH: int = 400
 SCREEN_HEIGHT: int = 800
+HORIZONTAL_SCREEN_WIDTH: int = 1400
+HORIZONTAL_SCREEN_HEIGHT: int = 500
 SCREEN_TITLE: str = "JumpStep"
 GRAVITY: float = 0.25
 MOVE_SPEED: int = 3

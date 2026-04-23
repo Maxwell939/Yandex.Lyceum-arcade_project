@@ -2,7 +2,7 @@ import os
 import sys
 import arcade
 
-from constants import PLAYER_SCALE, SCREEN_HEIGHT, RUN_SPEED
+from constants import PLAYER_SCALE, RUN_SPEED, HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
 
 
 def get_base_path():
@@ -32,5 +32,10 @@ class PlayerHor(arcade.Sprite):
 
     def update(self, delta_time: float = 1 / 60) -> None:
         super().update(delta_time)
-        if self.top < 0 or self.bottom > SCREEN_HEIGHT:
+        if self.top < 0:
             self.is_dead = True
+
+        if self.left <= 0:
+            self.left = 0
+        elif self.right >= HORIZONTAL_SCREEN_WIDTH:
+            self.right = HORIZONTAL_SCREEN_WIDTH

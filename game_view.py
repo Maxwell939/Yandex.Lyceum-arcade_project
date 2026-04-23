@@ -2,12 +2,12 @@ import random
 import os
 import sys
 import arcade
-from arcade import Sprite
 
 from arcade.particles import Emitter, EmitBurst, FadeParticle
 from pyglet.graphics import Batch
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
-    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES
+    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, \
+    HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
@@ -197,7 +197,7 @@ class GameView(arcade.View):
             horizontal_view = GameViewHorizontal()
             horizontal_view.setup()
             self.window.show_view(horizontal_view)
-            self.window.set_size(SCREEN_WIDTH + 1000, SCREEN_HEIGHT - 300)
+            self.window.set_size(HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT, arcade.key.A):
