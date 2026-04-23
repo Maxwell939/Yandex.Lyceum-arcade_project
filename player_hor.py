@@ -2,7 +2,7 @@ import os
 import sys
 import arcade
 
-from constants import PLAYER_SCALE
+from constants import PLAYER_SCALE, SCREEN_HEIGHT, RUN_SPEED
 
 
 def get_base_path():
@@ -27,8 +27,10 @@ class PlayerHor(arcade.Sprite):
         self.scale = PLAYER_SCALE
 
         self.is_dead = False
-
         self.boost_active = False
+        self.change_x = RUN_SPEED
 
     def update(self, delta_time: float = 1 / 60) -> None:
         super().update(delta_time)
+        if self.top < 0 or self.bottom > SCREEN_HEIGHT:
+            self.is_dead = True
