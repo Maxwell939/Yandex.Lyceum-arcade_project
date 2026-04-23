@@ -2,15 +2,14 @@ import random
 import os
 import sys
 import arcade
+
 from arcade.particles import Emitter, EmitBurst, FadeParticle
 from pyglet.graphics import Batch
-
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
-    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, SCREEN_TITLE
-
+    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, \
+    HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
-from boosts import Spring
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player
 from player_hor import PlayerHor
@@ -24,12 +23,15 @@ def get_base_path():
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
+
 BASE_PATH = get_base_path()
+
 
 def gravity_drag(p):
     p.change_y -= 0.03
     p.change_x *= 0.92
     p.change_y *= 0.92
+
 
 def make_explosion(x, y, count=80):
     return Emitter(
@@ -190,13 +192,12 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 100 and self.horizontal_world == False: #пока что оставьте 100 чтобы было проще тестить
+        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
-            self.window.set_size(SCREEN_WIDTH + 1200, SCREEN_HEIGHT - 200)
             horizontal_view = GameViewHorizontal()
             horizontal_view.setup()
             self.window.show_view(horizontal_view)
-
+            self.window.set_size(HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT, arcade.key.A):
@@ -209,7 +210,7 @@ class GameView(arcade.View):
             self.left = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right = False
-    
+
     def create_score_display(self):
         self.score_text = arcade.Text(
             f"{self.score_manager.current_score}",
@@ -221,10 +222,6 @@ class GameView(arcade.View):
         self.score_text.text = f"{self.score_manager.current_score}"
 
 
-
-
-
-
 class GameViewHorizontal(arcade.View):
     def __init__(self):
         super().__init__()
@@ -234,16 +231,16 @@ class GameViewHorizontal(arcade.View):
         self.platforms = arcade.SpriteList()
 
         self.player = None
+        self.left = False
+        self.right = False
         self.spawn_point = (100, 120)
 
         self.engine = None
 
-        self.world_speed = 6
+        self.world_speed = 5
         self.last_platform_x = 300
 
     def setup(self):
-
-
         self.player = PlayerHor(*self.spawn_point)
         self.player_list.append(self.player)
 
@@ -253,10 +250,10 @@ class GameViewHorizontal(arcade.View):
         platform.position = (200, 0.4)
         self.platforms.append(platform)
 
-        self.engine = OneWayPlatformPhysicsEngine(
+        self.engine = arcade.PhysicsEnginePlatformer(
             player_sprite=self.player,
-            gravity_constant=GRAVITY,
-            platforms=self.platforms
+            platforms=self.platforms,
+            gravity_constant=GRAVITY
         )
 
     def on_draw(self):
@@ -265,8 +262,12 @@ class GameViewHorizontal(arcade.View):
         self.player_list.draw(pixelated=True)
 
     def on_update(self, delta_time: float):
-        self.player.change_x = 0
-
+        move = 0
+        if self.left and not self.right:
+            move = -MOVE_SPEED
+        elif self.right and not self.left:
+            move = MOVE_SPEED
+        self.player.change_x = move
         self.player_list.update()
 
         for platform in self.platforms:
@@ -287,11 +288,24 @@ class GameViewHorizontal(arcade.View):
             platform = PlatformHor(new_x, 0.4)
             self.platforms.append(platform)
 
-
+        self.engine.update()
         if self.player.is_dead:
-            print("Game Over")
+            game_over_view = GameOverView(ScoreManager(), SoundManager()) # адаптировать под горизональный вид
+            self.window.show_view(game_over_view)
+            self.horizontal_world = False
+            self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.SPACE, arcade.key.W):
             if self.engine.can_jump():
                 self.player.change_y = JUMP_SPEED
+        elif key in (arcade.key.LEFT, arcade.key.A):
+            self.left = True
+        elif key in (arcade.key.RIGHT, arcade.key.D):
+            self.right = True
+
+    def on_key_release(self, key, modifiers):
+        if key in (arcade.key.LEFT, arcade.key.A):
+            self.left = False
+        elif key in (arcade.key.RIGHT, arcade.key.D):
+            self.right = False
