@@ -289,10 +289,11 @@ class GameViewHorizontal(arcade.View):
             self.platforms.append(platform)
 
         self.engine.update()
-
         if self.player.is_dead:
             game_over_view = GameOverView(ScoreManager(), SoundManager()) # адаптировать под горизональный вид
             self.window.show_view(game_over_view)
+            self.horizontal_world = False
+            self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.SPACE, arcade.key.W):
