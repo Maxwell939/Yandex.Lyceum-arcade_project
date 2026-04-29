@@ -16,6 +16,7 @@ from player_hor import PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
+from obstacles import Tree
 
 
 def get_base_path():
@@ -286,7 +287,18 @@ class GameViewHorizontal(arcade.View):
                 new_x = 200
 
             platform = PlatformHor(new_x, 0.4)
+            if random.random() < 1 / 8:
+                stick = Tree()
+                stick.center_x = platform.center_x
+                stick.bottom = platform.top
+                stick.is_obstacle = True
+                self.platforms.append(stick)
             self.platforms.append(platform)
+        for sprite in self.platforms:
+            if getattr(sprite, 'is_obstacle', False):
+                if arcade.check_for_collision(self.player, sprite):
+                    self.player.is_dead = True
+                    break
 
         self.engine.update()
         if self.player.is_dead:
