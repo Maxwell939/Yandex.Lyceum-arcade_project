@@ -247,7 +247,7 @@ class GameViewHorizontal(arcade.View):
         self.platforms = arcade.SpriteList()
 
         platform = PlatformHor()
-        platform.position = (200, 0.4)
+        platform.position = (200, 0)
         self.platforms.append(platform)
 
         self.engine = arcade.PhysicsEnginePlatformer(
@@ -269,6 +269,7 @@ class GameViewHorizontal(arcade.View):
             move = MOVE_SPEED
         self.player.change_x = move
         self.player_list.update()
+        self.player_list.update_animation(delta_time)
 
         for platform in self.platforms:
             platform.center_x -= self.world_speed
@@ -285,7 +286,7 @@ class GameViewHorizontal(arcade.View):
             else:
                 new_x = 200
 
-            platform = PlatformHor(new_x, 0.4)
+            platform = PlatformHor(new_x, 0)
             self.platforms.append(platform)
 
         self.engine.update()
