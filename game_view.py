@@ -11,8 +11,7 @@ from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLAT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
-from player import Player
-from player_hor import PlayerHor
+from player import Player, PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
@@ -51,7 +50,7 @@ def make_explosion(x, y, count=80):
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        background_path = os.path.join(BASE_PATH, "textures", "background.png")
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "background.png")
         self.background = arcade.load_texture(background_path)
         self.player_list = arcade.SpriteList()
 
