@@ -3,7 +3,8 @@ import os
 import sys
 import arcade
 
-from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY
+from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY, \
+    PLATFORM_SCALE
 from boosts import Spring
 
 
@@ -21,8 +22,7 @@ class Platform(arcade.Sprite):
         super().__init__()
         platform_path = os.path.join(BASE_PATH, "textures", "platforms", "platform.png")
         self.texture = arcade.load_texture(platform_path)
-        self.scale_y = 0.7
-        self.scale_x = 1.1
+        self.scale = PLATFORM_SCALE
         self.left = random.randint(0, int(SCREEN_WIDTH - self.width))
         self.bottom = y
         self.boost = None
@@ -69,10 +69,9 @@ class MovingPlatform(Platform):
 class PlatformHor(arcade.Sprite):
     def __init__(self, x: int = 3, y: int = 0.4):
         super().__init__()
-        platform_path = os.path.join(BASE_PATH, "textures", "platforms", "platform.png")
+        platform_path = os.path.join(BASE_PATH, "textures", "platforms", "brown_grass.png")
         self.texture = arcade.load_texture(platform_path)
-        self.scale_y = 3  # размеры нужно подправить
-        self.scale_x = 8
+        self.scale = PLATFORM_SCALE
         self.center_x = x
         self.bottom = y
 

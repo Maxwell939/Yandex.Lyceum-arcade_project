@@ -9,6 +9,7 @@ SCREEN_TITLE: str = "JumpStep"
 GRAVITY: float = 0.25
 MOVE_SPEED: int = 3
 MAX_PLATFORMS: int = 20
+PLATFORM_SCALE: tuple[float, float] = (1.1, 0.8)
 MAX_DELTA_PLATFORMS_DISTANCE: int = 130
 MOVING_PLATFORMS_SCORE_THRESHOLD: int = 1000
 MOVING_PLATFORM_SPEED_RANGE: tuple[float, float] = (1.0, 2.0)

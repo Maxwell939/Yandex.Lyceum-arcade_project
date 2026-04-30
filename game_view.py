@@ -278,7 +278,7 @@ class GameViewHorizontal(arcade.View):
             if platform.right < 0:
                 platform.remove_from_sprite_lists()
 
-        if len(self.platforms) < 10:
+        if len(self.platforms) < 35:
             last_platform = self.platforms[-1] if self.platforms else None
 
             if last_platform:
@@ -291,7 +291,7 @@ class GameViewHorizontal(arcade.View):
 
         self.engine.update()
         if self.player.is_dead:
-            game_over_view = GameOverView(ScoreManager(), SoundManager()) # адаптировать под горизональный вид
+            game_over_view = GameOverView(ScoreManager(), SoundManager())
             self.window.show_view(game_over_view)
             self.horizontal_world = False
             self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
