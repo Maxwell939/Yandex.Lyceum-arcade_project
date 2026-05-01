@@ -224,7 +224,8 @@ class GameView(arcade.View):
 class GameViewHorizontal(arcade.View):
     def __init__(self):
         super().__init__()
-        arcade.set_background_color(arcade.color.BLUE)
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "wildwest.png")
+        self.background = arcade.load_texture(background_path)
 
         self.player_list = arcade.SpriteList()
         self.platforms = arcade.SpriteList()
@@ -237,6 +238,9 @@ class GameViewHorizontal(arcade.View):
         self.engine = None
 
         self.world_speed = 5
+        self.background_speed = 3
+        self.background_scroll = 0
+
         self.last_platform_x = 300
 
     def setup(self):
@@ -257,6 +261,12 @@ class GameViewHorizontal(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(-HORIZONTAL_SCREEN_WIDTH + self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
 
@@ -269,6 +279,9 @@ class GameViewHorizontal(arcade.View):
         self.player.change_x = move
         self.player_list.update()
         self.player_list.update_animation(delta_time)
+
+        self.background_scroll -= self.background_speed
+        self.background_scroll %= HORIZONTAL_SCREEN_WIDTH
 
         for platform in self.platforms:
             platform.center_x -= self.world_speed
