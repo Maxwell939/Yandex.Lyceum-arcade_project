@@ -3,6 +3,8 @@ import arcade
 
 SCREEN_WIDTH: int = 400
 SCREEN_HEIGHT: int = 800
+HORIZONTAL_SCREEN_WIDTH: int = 1400
+HORIZONTAL_SCREEN_HEIGHT: int = 500
 SCREEN_TITLE: str = "JumpStep"
 GRAVITY: float = 0.25
 MOVE_SPEED: int = 3
@@ -18,7 +20,8 @@ RIGHT_FACING: int = 1
 LEFT_FACING: int = -1
 ENEMY_SCALE: float = 1.5
 ENEMIES_SPAWN_SCORE_THRESHOLD: int = 2500
-BOOST_PROBABILITY = 0.05
+BOOST_PROBABILITY: float = 0.05
+RUN_SPEED: int = 5
 SPARK_TEXTURES = [
     arcade.make_soft_circle_texture(8, arcade.color.ALIZARIN_CRIMSON),
     arcade.make_soft_circle_texture(8, arcade.color.COQUELICOT),

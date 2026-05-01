@@ -5,13 +5,13 @@ import arcade
 
 from constants import RIGHT_FACING, LEFT_FACING, SCREEN_WIDTH, ENEMY_BIRD_SPEED, ENEMY_SCALE, JUMP_SPEED
 from sound_manager import SoundManager
-from boosts import Boost
 
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
+
 
 BASE_PATH = get_base_path()
 
