@@ -18,4 +18,3 @@ class Tree(arcade.Sprite):
         tree_path = os.path.join(BASE_PATH, "textures", "obstacles", "stick.png")
         self.texture = arcade.load_texture(tree_path)
         self.scale = 0.5
-

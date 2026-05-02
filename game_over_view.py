@@ -28,7 +28,7 @@ class GameOverView(arcade.View):
         font_path = os.path.join(BASE_PATH, "fonts", "PressStart2P-Regular.ttf")
         arcade.load_font(font_path)
         self.create_text_elements()
-    
+
     def create_text_elements(self):
         self.game_over_text = arcade.Text(
             "GAME OVER",
@@ -100,12 +100,12 @@ class GameOverView(arcade.View):
             font_name="Press Start 2P",
             batch=self.batch
         )
-    
+
     def on_draw(self):
         self.clear()
         arcade.set_background_color(arcade.color.BLACK)
         self.batch.draw()
-    
+
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             from game_view import GameView

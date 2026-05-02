@@ -12,7 +12,6 @@ from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player, PlayerHor
-from player_hor import PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
@@ -324,7 +323,7 @@ class GameViewHorizontal(arcade.View):
                     self.platforms.append(stick)
                     self.last_tree_score = self.score
             elif self.score >= 3000:
-                if random.random() < 1/8:
+                if random.random() < 1 / 8:
                     stick = Tree()
                     stick.center_x = platform.center_x
                     stick.bottom = platform.top
@@ -368,4 +367,3 @@ class GameViewHorizontal(arcade.View):
 
     def update_score_display(self):
         self.score_text.text = f"{self.score_manager.current_score}"
-
