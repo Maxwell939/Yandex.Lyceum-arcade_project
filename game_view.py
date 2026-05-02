@@ -328,7 +328,7 @@ class GameViewHorizontal(arcade.View):
 
         self.engine.update()
         if self.player.is_dead:
-            game_over_view = GameOverView(ScoreManager(), SoundManager())
+            game_over_view = GameOverView(self.score_manager, SoundManager())
             self.window.show_view(game_over_view)
             self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
 
