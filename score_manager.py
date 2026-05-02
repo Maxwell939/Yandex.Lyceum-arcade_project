@@ -1,6 +1,6 @@
 import os
 import sys
-
+import arcade
 
 class ScoreManager:
     def __init__(self):
@@ -45,3 +45,26 @@ class ScoreManager:
 
     def reset(self):
         self.current_score = 0
+
+
+
+class HorizontalScoreManager:
+    def __init__(self, current_score=0):
+        self.current_score = current_score
+
+    def draw(self):
+        arcade.draw_text(
+            "score",
+            10, 20,
+            arcade.color.BLUE,
+            20
+        )
+        arcade.draw_text(
+            str(int(self.current_score)),
+            80, 20,
+            arcade.color.BLUE,
+            20
+        )
+
+    def update_score(self, new_score):
+        self.current_score = new_score

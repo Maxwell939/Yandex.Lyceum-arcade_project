@@ -13,7 +13,7 @@ from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player
 from player_hor import PlayerHor
-from score_manager import ScoreManager
+from score_manager import ScoreManager, HorizontalScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
 
@@ -49,7 +49,7 @@ def make_explosion(x, y, count=80):
 
 
 class GameView(arcade.View):
-    def __init__(self):
+    def __init__(self, score = 0):
         super().__init__()
         background_path = os.path.join(BASE_PATH, "textures", "background.png")
         self.background = arcade.load_texture(background_path)
@@ -80,7 +80,7 @@ class GameView(arcade.View):
 
         self.batch = Batch()
         self.score_text = None
-        self.score = 0
+        self.score = score
 
         self.horizontal_world = False
 
@@ -194,7 +194,7 @@ class GameView(arcade.View):
 
         if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
-            horizontal_view = GameViewHorizontal()
+            horizontal_view = GameViewHorizontal(self.score)
             horizontal_view.setup()
             self.window.show_view(horizontal_view)
             self.window.set_size(HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT)
@@ -223,7 +223,7 @@ class GameView(arcade.View):
 
 
 class GameViewHorizontal(arcade.View):
-    def __init__(self):
+    def __init__(self, score):
         super().__init__()
         arcade.set_background_color(arcade.color.BLUE)
 
@@ -239,6 +239,10 @@ class GameViewHorizontal(arcade.View):
 
         self.world_speed = 5
         self.last_platform_x = 300
+
+        self.score = score
+        self.score_manager = HorizontalScoreManager(self.score)
+        self.elapsed_time = 0
 
     def setup(self):
         self.player = PlayerHor(*self.spawn_point)
@@ -260,6 +264,7 @@ class GameViewHorizontal(arcade.View):
         self.clear()
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
+        self.score_manager.draw()
 
     def on_update(self, delta_time: float):
         move = 0
@@ -294,6 +299,12 @@ class GameViewHorizontal(arcade.View):
             self.window.show_view(game_over_view)
             self.horizontal_world = False
             self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.score_manager.update_score(self.score)
+        self.elapsed_time += delta_time
+        if self.elapsed_time >= 0.5:
+            self.score += 5
+            self.update_score(self.score)
+            self.elapsed_time = 0
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.SPACE, arcade.key.W):
@@ -309,3 +320,8 @@ class GameViewHorizontal(arcade.View):
             self.left = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right = False
+
+    def update_score(self, new_score):
+        if new_score > self.score:
+            self.score = new_score
+            self.score_manager.update_score(new_score)
