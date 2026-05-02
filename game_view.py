@@ -12,6 +12,7 @@ from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player, PlayerHor
+from player_hor import PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
@@ -49,7 +50,7 @@ def make_explosion(x, y, count=80):
 
 
 class GameView(arcade.View):
-    def __init__(self):
+    def __init__(self, score=0):
         super().__init__()
         background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "background.png")
         self.background = arcade.load_texture(background_path)
@@ -80,7 +81,7 @@ class GameView(arcade.View):
 
         self.batch = Batch()
         self.score_text = None
-        self.score = 0
+        self.score = score
 
         self.horizontal_world = False
 
@@ -194,7 +195,7 @@ class GameView(arcade.View):
 
         if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
-            horizontal_view = GameViewHorizontal()
+            horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
             self.window.show_view(horizontal_view)
             self.window.set_size(HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT)
@@ -223,7 +224,7 @@ class GameView(arcade.View):
 
 
 class GameViewHorizontal(arcade.View):
-    def __init__(self):
+    def __init__(self, score_manager: ScoreManager):
         super().__init__()
         background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "wildwest.png")
         self.background = arcade.load_texture(background_path)
@@ -244,6 +245,11 @@ class GameViewHorizontal(arcade.View):
 
         self.last_platform_x = 300
 
+        self.batch = Batch()
+        self.score_text = None
+        self.score_manager = score_manager
+        self.score = self.score_manager.current_score
+
     def setup(self):
         self.player = PlayerHor(*self.spawn_point)
         self.player_list.append(self.player)
@@ -260,6 +266,8 @@ class GameViewHorizontal(arcade.View):
             gravity_constant=GRAVITY
         )
 
+        self.create_score_display()
+
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background,
@@ -270,6 +278,7 @@ class GameViewHorizontal(arcade.View):
                                                   HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
+        self.batch.draw()
 
     def on_update(self, delta_time: float):
         move = 0
@@ -283,6 +292,10 @@ class GameViewHorizontal(arcade.View):
 
         self.background_scroll -= self.background_speed
         self.background_scroll %= HORIZONTAL_SCREEN_WIDTH
+
+        self.score += self.world_speed // 2
+        self.score_manager.update_score(int(self.score))
+        self.update_score_display()
 
         for platform in self.platforms:
             platform.center_x -= self.world_speed
@@ -317,7 +330,6 @@ class GameViewHorizontal(arcade.View):
         if self.player.is_dead:
             game_over_view = GameOverView(ScoreManager(), SoundManager())
             self.window.show_view(game_over_view)
-            self.horizontal_world = False
             self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
 
     def on_key_press(self, key, modifiers):
@@ -334,3 +346,13 @@ class GameViewHorizontal(arcade.View):
             self.left = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right = False
+
+    def create_score_display(self):
+        self.score_text = arcade.Text(
+            f"{self.score_manager.current_score}",
+            10, HORIZONTAL_SCREEN_HEIGHT - 30,
+            arcade.color.BLACK, 15, font_name="Press Start 2P",
+            batch=self.batch)
+
+    def update_score_display(self):
+        self.score_text.text = f"{self.score_manager.current_score}"
