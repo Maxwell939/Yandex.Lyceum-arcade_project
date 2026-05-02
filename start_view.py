@@ -1,6 +1,7 @@
 import os
 import sys
 import arcade
+
 from pyglet.graphics import Batch
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
 
@@ -9,6 +10,7 @@ def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
+
 
 BASE_PATH = get_base_path()
 
@@ -36,7 +38,7 @@ class StartView(arcade.View):
         self.any_key_text1 = arcade.Text("Нажмите ПРОБЕЛ", SCREEN_WIDTH / 2,
                                          SCREEN_HEIGHT * 0.2, arcade.color.GRAY, font_size=15,
                                          font_name="Press Start 2P", anchor_x="center", batch=self.batch)
-        self.any_key_text2 = arcade.Text("для запуска", SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.15 ,
+        self.any_key_text2 = arcade.Text("для запуска", SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.15,
                                          arcade.color.GRAY, font_size=15, font_name="Press Start 2P",
                                          anchor_x="center", batch=self.batch)
         self.high_score_text1 = arcade.Text(

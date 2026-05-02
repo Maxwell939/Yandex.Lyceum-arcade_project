@@ -2,20 +2,20 @@ import random
 import os
 import sys
 import arcade
+
 from arcade.particles import Emitter, EmitBurst, FadeParticle
 from pyglet.graphics import Batch
-
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
-    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES
-
+    MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, \
+    HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
-from boosts import Spring
-from platforms import Platform, MovingPlatform
-from player import Player
+from platforms import Platform, MovingPlatform, PlatformHor
+from player import Player, PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
+from obstacles import Tree
 
 
 def get_base_path():
@@ -23,12 +23,15 @@ def get_base_path():
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
+
 BASE_PATH = get_base_path()
+
 
 def gravity_drag(p):
     p.change_y -= 0.03
     p.change_x *= 0.92
     p.change_y *= 0.92
+
 
 def make_explosion(x, y, count=80):
     return Emitter(
@@ -48,7 +51,7 @@ def make_explosion(x, y, count=80):
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        background_path = os.path.join(BASE_PATH, "textures", "background.png")
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "background.png")
         self.background = arcade.load_texture(background_path)
         self.player_list = arcade.SpriteList()
 
@@ -78,6 +81,8 @@ class GameView(arcade.View):
         self.batch = Batch()
         self.score_text = None
         self.score = 0
+
+        self.horizontal_world = False
 
     def setup(self):
         self.player = Player(*self.spawn_point)
@@ -187,6 +192,13 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
+        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
+            self.horizontal_world = True
+            horizontal_view = GameViewHorizontal()
+            horizontal_view.setup()
+            self.window.show_view(horizontal_view)
+            self.window.set_size(HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT)
+
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT, arcade.key.A):
             self.left = True
@@ -198,7 +210,7 @@ class GameView(arcade.View):
             self.left = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right = False
-    
+
     def create_score_display(self):
         self.score_text = arcade.Text(
             f"{self.score_manager.current_score}",
@@ -208,3 +220,117 @@ class GameView(arcade.View):
 
     def update_score_display(self):
         self.score_text.text = f"{self.score_manager.current_score}"
+
+
+class GameViewHorizontal(arcade.View):
+    def __init__(self):
+        super().__init__()
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "wildwest.png")
+        self.background = arcade.load_texture(background_path)
+
+        self.player_list = arcade.SpriteList()
+        self.platforms = arcade.SpriteList()
+
+        self.player = None
+        self.left = False
+        self.right = False
+        self.spawn_point = (100, 120)
+
+        self.engine = None
+
+        self.world_speed = 5
+        self.background_speed = 3
+        self.background_scroll = 0
+
+        self.last_platform_x = 300
+
+    def setup(self):
+        self.player = PlayerHor(*self.spawn_point)
+        self.player_list.append(self.player)
+
+        self.platforms = arcade.SpriteList()
+
+        platform = PlatformHor()
+        platform.position = (200, 0)
+        self.platforms.append(platform)
+
+        self.engine = arcade.PhysicsEnginePlatformer(
+            player_sprite=self.player,
+            platforms=self.platforms,
+            gravity_constant=GRAVITY
+        )
+
+    def on_draw(self):
+        self.clear()
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(-HORIZONTAL_SCREEN_WIDTH + self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+        self.platforms.draw(pixelated=True)
+        self.player_list.draw(pixelated=True)
+
+    def on_update(self, delta_time: float):
+        move = 0
+        if self.left and not self.right:
+            move = -MOVE_SPEED
+        elif self.right and not self.left:
+            move = MOVE_SPEED
+        self.player.change_x = move
+        self.player_list.update()
+        self.player_list.update_animation(delta_time)
+
+        self.background_scroll -= self.background_speed
+        self.background_scroll %= HORIZONTAL_SCREEN_WIDTH
+
+        for platform in self.platforms:
+            platform.center_x -= self.world_speed
+
+        for platform in list(self.platforms):
+            if platform.right < 0:
+                platform.remove_from_sprite_lists()
+
+        if len(self.platforms) < 35:
+            last_platform = self.platforms[-1] if self.platforms else None
+
+            if last_platform:
+                new_x = last_platform.right + 20  # маленький зазор
+            else:
+                new_x = 200
+
+            platform = PlatformHor(new_x, 0)
+            if random.random() < 1 / 8:
+                stick = Tree()
+                stick.center_x = platform.center_x
+                stick.bottom = platform.top
+                stick.is_obstacle = True
+                self.platforms.append(stick)
+            self.platforms.append(platform)
+        for sprite in self.platforms:
+            if getattr(sprite, 'is_obstacle', False):
+                if arcade.check_for_collision(self.player, sprite):
+                    self.player.is_dead = True
+                    break
+
+        self.engine.update()
+        if self.player.is_dead:
+            game_over_view = GameOverView(ScoreManager(), SoundManager())
+            self.window.show_view(game_over_view)
+            self.horizontal_world = False
+            self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    def on_key_press(self, key, modifiers):
+        if key in (arcade.key.SPACE, arcade.key.W):
+            if self.engine.can_jump():
+                self.player.change_y = JUMP_SPEED
+        elif key in (arcade.key.LEFT, arcade.key.A):
+            self.left = True
+        elif key in (arcade.key.RIGHT, arcade.key.D):
+            self.right = True
+
+    def on_key_release(self, key, modifiers):
+        if key in (arcade.key.LEFT, arcade.key.A):
+            self.left = False
+        elif key in (arcade.key.RIGHT, arcade.key.D):
+            self.right = False

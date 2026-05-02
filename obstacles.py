@@ -1,0 +1,21 @@
+import arcade
+import sys
+import os
+
+
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+BASE_PATH = get_base_path()
+
+
+class Tree(arcade.Sprite):
+    def __init__(self):
+        super().__init__()
+        tree_path = os.path.join(BASE_PATH, "textures", "obstacles", "stick.png")
+        self.texture = arcade.load_texture(tree_path)
+        self.scale = 0.5
+

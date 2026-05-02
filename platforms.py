@@ -2,15 +2,17 @@ import random
 import os
 import sys
 import arcade
-from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY
+
+from constants import LEFT_FACING, RIGHT_FACING, SCREEN_WIDTH, MOVING_PLATFORM_SPEED_RANGE, BOOST_PROBABILITY, \
+    PLATFORM_SCALE
 from boosts import Spring
-from score_manager import ScoreManager
 
 
 def get_base_path():
     if getattr(sys, 'frozen', False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
+
 
 BASE_PATH = get_base_path()
 
@@ -20,8 +22,7 @@ class Platform(arcade.Sprite):
         super().__init__()
         platform_path = os.path.join(BASE_PATH, "textures", "platforms", "platform.png")
         self.texture = arcade.load_texture(platform_path)
-        self.scale_y = 0.7
-        self.scale_x = 1.1
+        self.scale = PLATFORM_SCALE
         self.left = random.randint(0, int(SCREEN_WIDTH - self.width))
         self.bottom = y
         self.boost = None
@@ -63,3 +64,16 @@ class MovingPlatform(Platform):
         self.boundary_right = SCREEN_WIDTH
 
         self.change_x = random.uniform(*MOVING_PLATFORM_SPEED_RANGE)
+
+
+class PlatformHor(arcade.Sprite):
+    def __init__(self, x: int = 3, y: int = 0.4):
+        super().__init__()
+        platform_path = os.path.join(BASE_PATH, "textures", "platforms", "brown_grass.png")
+        self.texture = arcade.load_texture(platform_path)
+        self.scale = PLATFORM_SCALE
+        self.center_x = x
+        self.bottom = y
+
+    def update(self, delta_time: float = 1 / 60):
+        super().update(delta_time)

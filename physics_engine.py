@@ -1,4 +1,5 @@
 import arcade
+
 from constants import JUMP_SPEED
 from sound_manager import SoundManager
 

@@ -12,5 +12,6 @@ def main():
     window.show_view(setup_view)
     arcade.run()
 
+
 if __name__ == "__main__":
     main()
