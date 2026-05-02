@@ -250,6 +250,8 @@ class GameViewHorizontal(arcade.View):
         self.score_manager = score_manager
         self.score = self.score_manager.current_score
 
+        self.last_tree_score = 0
+
     def setup(self):
         self.player = PlayerHor(*self.spawn_point)
         self.player_list.append(self.player)
@@ -313,12 +315,22 @@ class GameViewHorizontal(arcade.View):
                 new_x = 200
 
             platform = PlatformHor(new_x, 0)
-            if random.random() < 1 / 8:
-                stick = Tree()
-                stick.center_x = platform.center_x
-                stick.bottom = platform.top
-                stick.is_obstacle = True
-                self.platforms.append(stick)
+            if self.score - self.last_tree_score > 200 and self.score < 3000:
+                if random.random() < 0.1:
+                    stick = Tree()
+                    stick.center_x = platform.center_x
+                    stick.bottom = platform.top
+                    stick.is_obstacle = True
+                    self.platforms.append(stick)
+                    self.last_tree_score = self.score
+            elif self.score >= 3000:
+                if random.random() < 1/8:
+                    stick = Tree()
+                    stick.center_x = platform.center_x
+                    stick.bottom = platform.top
+                    stick.is_obstacle = True
+                    self.platforms.append(stick)
+                    self.last_tree_score = self.score
             self.platforms.append(platform)
         for sprite in self.platforms:
             if getattr(sprite, 'is_obstacle', False):
@@ -356,3 +368,4 @@ class GameViewHorizontal(arcade.View):
 
     def update_score_display(self):
         self.score_text.text = f"{self.score_manager.current_score}"
+
