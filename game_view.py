@@ -192,7 +192,7 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
+        if self.score > 10000000 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
             horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
