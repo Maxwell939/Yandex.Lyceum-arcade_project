@@ -12,8 +12,6 @@ from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
 from player import Player, PlayerHor
-from score_manager import ScoreManager
-from player import Player
 from player_hor import PlayerHor
 from score_manager import ScoreManager, HorizontalScoreManager
 from game_over_view import GameOverView
