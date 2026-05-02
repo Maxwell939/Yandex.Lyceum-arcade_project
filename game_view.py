@@ -11,8 +11,7 @@ from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLAT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHor
-from player import Player
-from player_hor import PlayerHor
+from player import Player, PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
@@ -52,7 +51,7 @@ def make_explosion(x, y, count=80):
 class GameView(arcade.View):
     def __init__(self):
         super().__init__()
-        background_path = os.path.join(BASE_PATH, "textures", "background.png")
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "background.png")
         self.background = arcade.load_texture(background_path)
         self.player_list = arcade.SpriteList()
 
@@ -226,7 +225,8 @@ class GameView(arcade.View):
 class GameViewHorizontal(arcade.View):
     def __init__(self):
         super().__init__()
-        arcade.set_background_color(arcade.color.BLUE)
+        background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "wildwest.png")
+        self.background = arcade.load_texture(background_path)
 
         self.player_list = arcade.SpriteList()
         self.platforms = arcade.SpriteList()
@@ -239,6 +239,9 @@ class GameViewHorizontal(arcade.View):
         self.engine = None
 
         self.world_speed = 5
+        self.background_speed = 3
+        self.background_scroll = 0
+
         self.last_platform_x = 300
 
     def setup(self):
@@ -248,7 +251,7 @@ class GameViewHorizontal(arcade.View):
         self.platforms = arcade.SpriteList()
 
         platform = PlatformHor()
-        platform.position = (200, 0.4)
+        platform.position = (200, 0)
         self.platforms.append(platform)
 
         self.engine = arcade.PhysicsEnginePlatformer(
@@ -259,6 +262,12 @@ class GameViewHorizontal(arcade.View):
 
     def on_draw(self):
         self.clear()
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+        arcade.draw_texture_rect(self.background,
+                                 arcade.rect.LBWH(-HORIZONTAL_SCREEN_WIDTH + self.background_scroll, 0,
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
 
@@ -270,6 +279,10 @@ class GameViewHorizontal(arcade.View):
             move = MOVE_SPEED
         self.player.change_x = move
         self.player_list.update()
+        self.player_list.update_animation(delta_time)
+
+        self.background_scroll -= self.background_speed
+        self.background_scroll %= HORIZONTAL_SCREEN_WIDTH
 
         for platform in self.platforms:
             platform.center_x -= self.world_speed
@@ -278,7 +291,7 @@ class GameViewHorizontal(arcade.View):
             if platform.right < 0:
                 platform.remove_from_sprite_lists()
 
-        if len(self.platforms) < 10:
+        if len(self.platforms) < 35:
             last_platform = self.platforms[-1] if self.platforms else None
 
             if last_platform:
@@ -286,7 +299,7 @@ class GameViewHorizontal(arcade.View):
             else:
                 new_x = 200
 
-            platform = PlatformHor(new_x, 0.4)
+            platform = PlatformHor(new_x, 0)
             if random.random() < 1 / 8:
                 stick = Tree()
                 stick.center_x = platform.center_x
@@ -302,7 +315,7 @@ class GameViewHorizontal(arcade.View):
 
         self.engine.update()
         if self.player.is_dead:
-            game_over_view = GameOverView(ScoreManager(), SoundManager()) # адаптировать под горизональный вид
+            game_over_view = GameOverView(ScoreManager(), SoundManager())
             self.window.show_view(game_over_view)
             self.horizontal_world = False
             self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
