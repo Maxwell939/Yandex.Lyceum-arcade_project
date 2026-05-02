@@ -66,13 +66,26 @@ class MovingPlatform(Platform):
         self.change_x = random.uniform(*MOVING_PLATFORM_SPEED_RANGE)
 
 
-class PlatformHor(arcade.Sprite):
-    def __init__(self, x: int = 3, y: int = 0.4):
+class PlatformHorizontal(arcade.Sprite):
+    def __init__(self, x: int = 3, y: int = 0, scale_x: float = 1.0):
         super().__init__()
         platform_path = os.path.join(BASE_PATH, "textures", "platforms", "brown_grass.png")
         self.texture = arcade.load_texture(platform_path)
-        self.scale = PLATFORM_SCALE
+        self.scale_x = scale_x
+        self.scale_y = PLATFORM_SCALE[1]
         self.center_x = x
+        self.bottom = y
+
+    def update(self, delta_time: float = 1 / 60):
+        super().update(delta_time)
+
+
+class GroundPlatform(Platform):
+    def __init__(self, x: int = 3, y: int = 0):
+        super().__init__()
+        platform_path = os.path.join(BASE_PATH, "textures", "platforms", "ground_brown_grass.png")
+        self.texture = arcade.load_texture(platform_path)
+        self.left = x
         self.bottom = y
 
     def update(self, delta_time: float = 1 / 60):

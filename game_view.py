@@ -10,7 +10,7 @@ from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLAT
     HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
-from platforms import Platform, MovingPlatform, PlatformHor
+from platforms import Platform, MovingPlatform, PlatformHorizontal, GroundPlatform
 from player import Player, PlayerHor
 from score_manager import ScoreManager
 from game_over_view import GameOverView
@@ -192,7 +192,7 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 10000000 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
+        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
             horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
@@ -238,8 +238,8 @@ class GameViewHorizontal(arcade.View):
 
         self.engine = None
 
-        self.world_speed = 5
-        self.background_speed = 3
+        self.world_speed = 5  # Reduced from 5 for slower gameplay
+        self.background_speed = 3  # Reduced from 3
         self.background_scroll = 0
 
         self.last_platform_x = 300
@@ -257,9 +257,14 @@ class GameViewHorizontal(arcade.View):
 
         self.platforms = arcade.SpriteList()
 
-        platform = PlatformHor()
-        platform.position = (200, 0)
-        self.platforms.append(platform)
+        # Create initial continuous ground (cover screen width + buffer)
+        # Ground texture is 46 pixels wide
+        ground_texture_width = 46
+        self.platforms_needed = (HORIZONTAL_SCREEN_WIDTH // ground_texture_width) + 3  # +3 for buffer
+
+        for i in range(self.platforms_needed):
+            platform = GroundPlatform(i * ground_texture_width + ground_texture_width, 0)
+            self.platforms.append(platform)
 
         self.engine = arcade.PhysicsEnginePlatformer(
             player_sprite=self.player,
@@ -305,32 +310,58 @@ class GameViewHorizontal(arcade.View):
             if platform.right < 0:
                 platform.remove_from_sprite_lists()
 
-        if len(self.platforms) < 35:
-            last_platform = self.platforms[-1] if self.platforms else None
+        # Maintain continuous ground (keep 3 ground platforms ahead)
+        ground_platforms = [p for p in self.platforms if p.bottom == 0]
+        if len(ground_platforms) < self.platforms_needed:
+            # Find the rightmost ground platform
+            last_ground = max(ground_platforms, key=lambda p: p.left) if ground_platforms else None
 
-            if last_platform:
-                new_x = last_platform.right + 20  # маленький зазор
+            if last_ground:
+                # Place next ground platform exactly where the last one ends
+                # Ground texture is 46 pixels wide with scale 1.0
+                ground_width = 46
+                new_ground_x = last_ground.left  + ground_width
             else:
-                new_x = 200
+                new_ground_x = 200
 
-            platform = PlatformHor(new_x, 0)
-            if self.score - self.last_tree_score > 200 and self.score < 3000:
-                if random.random() < 0.1:
-                    stick = Tree()
-                    stick.center_x = platform.center_x
-                    stick.bottom = platform.top
-                    stick.is_obstacle = True
-                    self.platforms.append(stick)
-                    self.last_tree_score = self.score
-            elif self.score >= 3000:
-                if random.random() < 1 / 8:
-                    stick = Tree()
-                    stick.center_x = platform.center_x
-                    stick.bottom = platform.top
-                    stick.is_obstacle = True
-                    self.platforms.append(stick)
-                    self.last_tree_score = self.score
-            self.platforms.append(platform)
+            # Ground platform with consistent scale
+            ground_platform = GroundPlatform(new_ground_x, 0)
+            self.platforms.append(ground_platform)
+
+        # Generate levitating platforms and obstacles
+        levitating_platforms = [p for p in self.platforms if p.bottom > 0 and not getattr(p, 'is_obstacle', False)]
+        if len(levitating_platforms) < 10:  # Limit levitating platforms
+            last_levitating = max(levitating_platforms, key=lambda p: p.center_x) if levitating_platforms else None
+
+            if last_levitating:
+                gap = random.randint(80, 150)
+                new_x = last_levitating.right + gap
+            else:
+                new_x = 400
+
+            levitating_height = random.randint(80, HORIZONTAL_SCREEN_HEIGHT - 100)
+            levitating_scale = random.uniform(1.0, 2.5)
+            levitating_platform = PlatformHorizontal(new_x, levitating_height, levitating_scale)
+            self.platforms.append(levitating_platform)
+
+            # # Obstacles on levitating platforms
+            # if self.score - self.last_tree_score > 400 and self.score < 3000:
+            #     if random.random() < 0.05:
+            #         stick = Tree()
+            #         stick.center_x = levitating_platform.center_x
+            #         stick.bottom = levitating_platform.top
+            #         stick.is_obstacle = True
+            #         self.platforms.append(stick)
+            #         self.last_tree_score = self.score
+            # elif self.score >= 3000:
+            #     if random.random() < 0.08:
+            #         stick = Tree()
+            #         stick.center_x = levitating_platform.center_x
+            #         stick.bottom = levitating_platform.top
+            #         stick.is_obstacle = True
+            #         self.platforms.append(stick)
+            #         self.last_tree_score = self.score
+
         for sprite in self.platforms:
             if getattr(sprite, 'is_obstacle', False):
                 if arcade.check_for_collision(self.player, sprite):
