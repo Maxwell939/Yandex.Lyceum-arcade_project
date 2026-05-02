@@ -18,13 +18,16 @@ class PlayerHor(arcade.Sprite):
     def __init__(self, x, y):
         super().__init__()
 
-        run_path = os.path.join(BASE_PATH, "textures", "player_hor", "img.png")  # пока пусть будет так
-
-        self.texture = arcade.load_texture(run_path)
+        for i in range(12):
+            self.textures.append(arcade.load_texture(os.path.join(BASE_PATH, "textures", "player", f"run{i}.png")))
 
         self.center_x = x
         self.bottom = y
         self.scale = PLAYER_SCALE
+        self.cur_texture_index = 0
+        self.texture = self.textures[self.cur_texture_index]
+        self.texture_change_time = 0
+        self.texture_change_delay = 0.05
 
         self.is_dead = False
         self.boost_active = False
@@ -39,3 +42,10 @@ class PlayerHor(arcade.Sprite):
             self.left = 0
         elif self.right >= HORIZONTAL_SCREEN_WIDTH:
             self.right = HORIZONTAL_SCREEN_WIDTH
+
+    def update_animation(self, delta_time: float = 1 / 60) -> None:
+        self.texture_change_time += delta_time
+        if self.texture_change_time >= self.texture_change_delay:
+            self.texture_change_time -= self.texture_change_delay
+            self.cur_texture_index = (self.cur_texture_index + 1) % len(self.textures)
+            self.texture = self.textures[self.cur_texture_index]
