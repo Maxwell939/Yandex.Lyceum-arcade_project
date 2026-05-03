@@ -111,10 +111,11 @@ class GameView(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background,
-                                 arcade.rect.LBWH(0, self.background_scroll, SCREEN_WIDTH, SCREEN_HEIGHT))
+                                 arcade.rect.LBWH(0, self.background_scroll, SCREEN_WIDTH, SCREEN_HEIGHT),
+                                 pixelated=True)
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(0, SCREEN_HEIGHT + self.background_scroll,
-                                                  SCREEN_WIDTH, SCREEN_HEIGHT))
+                                                  SCREEN_WIDTH, SCREEN_HEIGHT), pixelated=True)
 
         for e in self.emitters:
             e.draw()
@@ -122,6 +123,7 @@ class GameView(arcade.View):
         self.spring.draw(pixelated=True)
         self.enemies.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT - 35, SCREEN_HEIGHT, (0, 0, 0, 120))
         self.batch.draw()
 
     def on_update(self, delta_time):
@@ -195,7 +197,7 @@ class GameView(arcade.View):
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 100000 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
+        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
             horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
@@ -282,10 +284,10 @@ class GameViewHorizontal(arcade.View):
         self.clear()
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(self.background_scroll, 0,
-                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT), pixelated=True)
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(-HORIZONTAL_SCREEN_WIDTH + self.background_scroll, 0,
-                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT), pixelated=True)
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
         self.batch.draw()
