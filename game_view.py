@@ -233,7 +233,7 @@ class GameView(arcade.View):
                 else:
                     self.old_score = self.score
                 break
-        if self.score > 25000 and not self.horizontal_world and self.score - self.old_score > 700:
+        if self.score - self.score_on_last_transition > 25000 and not self.horizontal_world and self.score - self.old_score > 700:
             self.horizontal_world = True
             horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
