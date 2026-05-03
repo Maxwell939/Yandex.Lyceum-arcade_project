@@ -19,7 +19,7 @@ from obstacles import Tree
 
 
 def get_base_path():
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
@@ -122,7 +122,6 @@ class GameView(arcade.View):
         self.spring.draw(pixelated=True)
         self.enemies.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
-        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT - 35, SCREEN_HEIGHT, (0, 0, 0, 120))
         self.batch.draw()
 
     def on_update(self, delta_time):
@@ -164,8 +163,11 @@ class GameView(arcade.View):
             if self.score > MOVING_PLATFORMS_SCORE_THRESHOLD:
                 self.moving_platforms_amount = int(self.score) // (SCREEN_HEIGHT * 2)
         self.platforms.update()
+
         for boost in list(self.spring):
             boost.update(self.player, delta_time)
+            if hasattr(boost, "update_animation"):
+                boost.update_animation(delta_time) 
 
         if len(self.enemies) == 0 and self.score > ENEMIES_SPAWN_SCORE_THRESHOLD:
             self.enemies.append(EnemyBird(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 1200)))
@@ -188,11 +190,12 @@ class GameView(arcade.View):
                 self.emitters.remove(e)
 
         self.engine.update(sound_manager=self.sound_manager)
+
         if self.player.is_dead:
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
 
-        if self.score > 100 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
+        if self.score > 100000 and self.horizontal_world == False:  # пока что оставьте 100 чтобы было проще тестить
             self.horizontal_world = True
             horizontal_view = GameViewHorizontal(self.score_manager)
             horizontal_view.setup()
@@ -330,7 +333,7 @@ class GameViewHorizontal(arcade.View):
             self.platforms.append(ground_platform)
 
         # Generate levitating platforms and obstacles
-        levitating_platforms = [p for p in self.platforms if p.bottom > 0 and not getattr(p, 'is_obstacle', False)]
+        levitating_platforms = [p for p in self.platforms if p.bottom > 0 and not getattr(p, "is_obstacle", False)]
         if len(levitating_platforms) < 10:  # Limit levitating platforms
             last_levitating = max(levitating_platforms, key=lambda p: p.center_x) if levitating_platforms else None
 
@@ -364,7 +367,7 @@ class GameViewHorizontal(arcade.View):
             #         self.last_tree_score = self.score
 
         for sprite in self.platforms:
-            if getattr(sprite, 'is_obstacle', False):
+            if getattr(sprite, "is_obstacle", False):
                 if arcade.check_for_collision(self.player, sprite):
                     self.player.is_dead = True
                     break
