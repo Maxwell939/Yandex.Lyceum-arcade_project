@@ -49,7 +49,7 @@ def make_explosion(x, y, count=80):
 
 
 class GameView(arcade.View):
-    def __init__(self, score=0):
+    def __init__(self, score=0, from_horizontal=False):
         super().__init__()
         background_path = os.path.join(BASE_PATH, "textures", "backgrounds", "background.png")
         self.background = arcade.load_texture(background_path)
@@ -90,7 +90,7 @@ class GameView(arcade.View):
             {
                 'min': 1000,
                 'max': 5000,
-                'chance': 1 / 15
+                'chance': 1 / 25
             },
             {
                 'min': 5000,
@@ -103,7 +103,8 @@ class GameView(arcade.View):
                 'chance': 2 / 3
             }
         ]
-        self.score_on_last_transition = self.score
+        self.score_on_last_transition = score
+        self.from_horizontal = from_horizontal
 
     def setup(self):
         self.player = Player(*self.spawn_point)
@@ -293,6 +294,8 @@ class GameViewHorizontal(arcade.View):
         self.old_score = 0
 
         self.last_tree_score = self.score
+        self.first_tree = True
+        self.score_start = self.score
 
         self.score_on_last_transition = self.score
         self.ranges = [
@@ -367,6 +370,9 @@ class GameViewHorizontal(arcade.View):
             if platform.right < 0:
                 platform.remove_from_sprite_lists()
 
+        if self.score - self.score_start > 700:
+            self.first_tree = False
+
         if len(self.platforms) < 35:
             last_platform = self.platforms[-1] if self.platforms else None
 
@@ -374,7 +380,6 @@ class GameViewHorizontal(arcade.View):
                 new_x = last_platform.right + 20  # маленький зазор
             else:
                 new_x = 200
-
             platform = PlatformHor(new_x, 0)
             if self.score - self.last_tree_score > 200 and self.score < 15000:
                 if random.random() < 1 / 5:
@@ -384,7 +389,7 @@ class GameViewHorizontal(arcade.View):
                     stick.is_obstacle = True
                     self.platforms.append(stick)
                     self.last_tree_score = self.score
-            elif self.score >= 15000:
+            elif self.score >= 15000 and not self.first_tree:
                 if random.random() < 1 / 8:
                     stick = Tree()
                     stick.center_x = platform.center_x
@@ -401,7 +406,7 @@ class GameViewHorizontal(arcade.View):
         for r in self.ranges:
             if r['min'] < self.score - self.score_on_last_transition < r['max'] and self.score - self.old_score > 300:
                 if random.random() < r['chance']:
-                    vertical_view = GameView(self.score)
+                    vertical_view = GameView(self.score, from_horizontal=True)
                     vertical_view.setup()
                     self.window.show_view(vertical_view)
                     self.window.set_size(SCREEN_WIDTH, SCREEN_HEIGHT)
