@@ -7,11 +7,11 @@ from arcade.particles import Emitter, EmitBurst, FadeParticle
 from pyglet.graphics import Batch
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, MOVE_SPEED, MAX_PLATFORMS, JUMP_SPEED, \
     MAX_DELTA_PLATFORMS_DISTANCE, ENEMIES_SPAWN_SCORE_THRESHOLD, MOVING_PLATFORMS_SCORE_THRESHOLD, SPARK_TEXTURES, \
-    HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT
+    HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT, HORIZONTAL_MOVE_SPEED
 from enemies import EnemyBird, EnemyBat
 from physics_engine import OneWayPlatformPhysicsEngine
 from platforms import Platform, MovingPlatform, PlatformHorizontal, GroundPlatform
-from player import Player, PlayerHor
+from player import Player, PlayerHorizontal
 from score_manager import ScoreManager
 from game_over_view import GameOverView
 from sound_manager import SoundManager
@@ -19,7 +19,7 @@ from obstacles import Tree
 
 
 def get_base_path():
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
@@ -111,10 +111,11 @@ class GameView(arcade.View):
     def on_draw(self):
         self.clear()
         arcade.draw_texture_rect(self.background,
-                                 arcade.rect.LBWH(0, self.background_scroll, SCREEN_WIDTH, SCREEN_HEIGHT))
+                                 arcade.rect.LBWH(0, self.background_scroll, SCREEN_WIDTH, SCREEN_HEIGHT),
+                                 pixelated=True)
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(0, SCREEN_HEIGHT + self.background_scroll,
-                                                  SCREEN_WIDTH, SCREEN_HEIGHT))
+                                                  SCREEN_WIDTH, SCREEN_HEIGHT), pixelated=True)
 
         for e in self.emitters:
             e.draw()
@@ -164,8 +165,11 @@ class GameView(arcade.View):
             if self.score > MOVING_PLATFORMS_SCORE_THRESHOLD:
                 self.moving_platforms_amount = int(self.score) // (SCREEN_HEIGHT * 2)
         self.platforms.update()
+
         for boost in list(self.spring):
             boost.update(self.player, delta_time)
+            if hasattr(boost, "update_animation"):
+                boost.update_animation(delta_time) 
 
         if len(self.enemies) == 0 and self.score > ENEMIES_SPAWN_SCORE_THRESHOLD:
             self.enemies.append(EnemyBird(SCREEN_HEIGHT * 2 + random.choice((-1, 1)) * random.randint(100, 1200)))
@@ -188,6 +192,7 @@ class GameView(arcade.View):
                 self.emitters.remove(e)
 
         self.engine.update(sound_manager=self.sound_manager)
+
         if self.player.is_dead:
             game_over_view = GameOverView(self.score_manager, self.sound_manager)
             self.window.show_view(game_over_view)
@@ -252,14 +257,14 @@ class GameViewHorizontal(arcade.View):
         self.last_tree_score = 0
 
     def setup(self):
-        self.player = PlayerHor(*self.spawn_point)
+        self.player = PlayerHorizontal(*self.spawn_point)
         self.player_list.append(self.player)
 
         self.platforms = arcade.SpriteList()
 
         # Create initial continuous ground (cover screen width + buffer)
-        # Ground texture is 46 pixels wide
-        ground_texture_width = 46
+        # Ground texture is 44 pixels wide
+        ground_texture_width = 44
         self.platforms_needed = (HORIZONTAL_SCREEN_WIDTH // ground_texture_width) + 3  # +3 for buffer
 
         for i in range(self.platforms_needed):
@@ -271,6 +276,7 @@ class GameViewHorizontal(arcade.View):
             platforms=self.platforms,
             gravity_constant=GRAVITY
         )
+        self.engine.enable_multi_jump(2)
 
         self.create_score_display()
 
@@ -278,10 +284,10 @@ class GameViewHorizontal(arcade.View):
         self.clear()
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(self.background_scroll, 0,
-                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT), pixelated=True)
         arcade.draw_texture_rect(self.background,
                                  arcade.rect.LBWH(-HORIZONTAL_SCREEN_WIDTH + self.background_scroll, 0,
-                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT))
+                                                  HORIZONTAL_SCREEN_WIDTH, HORIZONTAL_SCREEN_HEIGHT), pixelated=True)
         self.platforms.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
         self.batch.draw()
@@ -289,9 +295,9 @@ class GameViewHorizontal(arcade.View):
     def on_update(self, delta_time: float):
         move = 0
         if self.left and not self.right:
-            move = -MOVE_SPEED
+            move = -HORIZONTAL_MOVE_SPEED
         elif self.right and not self.left:
-            move = MOVE_SPEED
+            move = HORIZONTAL_MOVE_SPEED
         self.player.change_x = move
         self.player_list.update()
         self.player_list.update_animation(delta_time)
@@ -318,9 +324,9 @@ class GameViewHorizontal(arcade.View):
 
             if last_ground:
                 # Place next ground platform exactly where the last one ends
-                # Ground texture is 46 pixels wide with scale 1.0
-                ground_width = 46
-                new_ground_x = last_ground.left  + ground_width
+                # Ground texture is 44 pixels wide with scale 1.0
+                ground_width = 44
+                new_ground_x = last_ground.left + ground_width
             else:
                 new_ground_x = 200
 
@@ -329,7 +335,7 @@ class GameViewHorizontal(arcade.View):
             self.platforms.append(ground_platform)
 
         # Generate levitating platforms and obstacles
-        levitating_platforms = [p for p in self.platforms if p.bottom > 0 and not getattr(p, 'is_obstacle', False)]
+        levitating_platforms = [p for p in self.platforms if p.bottom > 0 and not getattr(p, "is_obstacle", False)]
         if len(levitating_platforms) < 10:  # Limit levitating platforms
             last_levitating = max(levitating_platforms, key=lambda p: p.center_x) if levitating_platforms else None
 
@@ -363,7 +369,7 @@ class GameViewHorizontal(arcade.View):
             #         self.last_tree_score = self.score
 
         for sprite in self.platforms:
-            if getattr(sprite, 'is_obstacle', False):
+            if getattr(sprite, "is_obstacle", False):
                 if arcade.check_for_collision(self.player, sprite):
                     self.player.is_dead = True
                     break
@@ -377,7 +383,10 @@ class GameViewHorizontal(arcade.View):
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.SPACE, arcade.key.W):
             if self.engine.can_jump():
+                if self.engine.jumps_since_ground > 0:
+                    self.player.start_double_jump_animation()
                 self.player.change_y = JUMP_SPEED
+                self.engine.increment_jump_counter()
         elif key in (arcade.key.LEFT, arcade.key.A):
             self.left = True
         elif key in (arcade.key.RIGHT, arcade.key.D):
